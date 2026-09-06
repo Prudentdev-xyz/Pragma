@@ -1,0 +1,1068 @@
+<title>PRAGMA Complete Reference</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Inter:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --bg:           #000000;
+    --bg-card:      #0A0A0A;
+    --bg-section:   #111111;
+    --border:       #1A1A1A;
+    --border-light: #2A2A2A;
+    --text:         #FFFFFF;
+    --text-muted:   #6B7280;
+    --text-dim:     #4B5563;
+    --accent:       #2563EB;
+    --accent-hover: #1D4ED8;
+    --profit:       #22C55E;
+    --loss:         #EF4444;
+    --warning:      #F59E0B;
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      --bg:         #FFFFFF;
+      --bg-card:    #F9FAFB;
+      --bg-section: #F3F4F6;
+      --border:     #E5E7EB;
+      --border-light: #D1D5DB;
+      --text:       #000000;
+      --text-muted: #6B7280;
+      --text-dim:   #9CA3AF;
+    }
+  }
+
+  :root[data-theme="light"] {
+    --bg:         #FFFFFF;
+    --bg-card:    #F9FAFB;
+    --bg-section: #F3F4F6;
+    --border:     #E5E7EB;
+    --border-light: #D1D5DB;
+    --text:       #000000;
+    --text-muted: #6B7280;
+    --text-dim:   #9CA3AF;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 0;
+    transition: background 0.25s, color 0.25s;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 48px 24px 120px;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 64px;
+    padding-bottom: 32px;
+    border-bottom: 2px solid var(--border);
+  }
+
+  .wordmark {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 56px;
+    font-weight: 700;
+    letter-spacing: -2px;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+
+  .wordmark-dot { color: var(--accent); }
+
+  .tagline {
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  /* Navigation */
+  .nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 32px;
+  }
+
+  .nav-link {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 16px;
+    border-radius: 6px;
+    transition: all 0.15s;
+  }
+
+  .nav-link:hover {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+
+  /* Section */
+  .section {
+    margin-bottom: 64px;
+  }
+
+  .section-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+
+  .section-subtitle {
+    font-size: 15px;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+  }
+
+  /* Card */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+
+  .card-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--text);
+  }
+
+  .card-content {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text-muted);
+  }
+
+  .card-content p { margin-bottom: 12px; }
+  .card-content p:last-child { margin-bottom: 0; }
+
+  /* Code block */
+  pre {
+    background: var(--bg-section);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 13px;
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+
+  code {
+    font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+    font-size: 13px;
+    background: var(--bg-section);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  pre code {
+    background: none;
+    padding: 0;
+  }
+
+  /* Table */
+  .table-wrapper {
+    overflow-x: auto;
+    margin-bottom: 24px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  th {
+    background: var(--bg-section);
+    border: 1px solid var(--border);
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+  }
+
+  td {
+    border: 1px solid var(--border);
+    padding: 10px 14px;
+    color: var(--text);
+  }
+
+  tr:hover td {
+    background: var(--bg-card);
+  }
+
+  /* Grid */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  /* Colour swatch */
+  .swatch-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .swatch {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .swatch-block {
+    height: 80px;
+    width: 100%;
+  }
+
+  .swatch-info {
+    background: var(--bg-card);
+    padding: 10px 12px;
+  }
+
+  .swatch-name {
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+
+  .swatch-hex {
+    font-size: 11px;
+    font-family: 'SF Mono', monospace;
+    color: var(--text-muted);
+  }
+
+  /* Badge */
+  .badge {
+    display: inline-block;
+    background: var(--accent);
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin-right: 6px;
+    margin-bottom: 6px;
+  }
+
+  .badge.success { background: var(--profit); }
+  .badge.warning { background: var(--warning); }
+  .badge.danger { background: var(--loss); }
+
+  /* List */
+  ul, ol {
+    margin-left: 24px;
+    margin-bottom: 16px;
+    color: var(--text-muted);
+  }
+
+  li {
+    margin-bottom: 8px;
+    line-height: 1.6;
+  }
+
+  /* Diagram */
+  .diagram {
+    background: var(--bg-section);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    font-family: 'SF Mono', monospace;
+    font-size: 12px;
+    line-height: 1.8;
+    overflow-x: auto;
+    margin-bottom: 24px;
+    white-space: pre;
+    color: var(--text-muted);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .page { padding: 32px 16px 80px; }
+    .wordmark { font-size: 42px; }
+    .section-title { font-size: 26px; }
+    .nav { gap: 6px; }
+    .nav-link { font-size: 12px; padding: 6px 12px; }
+  }
+</style>
+
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="wordmark">PRAGMA<span class="wordmark-dot">.</span></div>
+    <div class="tagline">Don't predict. Act.</div>
+    <div class="subtitle">Autonomous AI Trading Agent — Complete Reference</div>
+
+    <nav class="nav">
+      <a href="#problem" class="nav-link">Problem</a>
+      <a href="#solution" class="nav-link">Solution</a>
+      <a href="#architecture" class="nav-link">Architecture</a>
+      <a href="#userflow" class="nav-link">User Flow</a>
+      <a href="#dataflow" class="nav-link">Data Flow</a>
+      <a href="#brand" class="nav-link">Brand & Colour</a>
+      <a href="#techstack" class="nav-link">Tech Stack</a>
+      <a href="#build" class="nav-link">Build Sequence</a>
+      <a href="#env" class="nav-link">Environment</a>
+    </nav>
+  </div>
+
+  <!-- Problem Statement -->
+  <section id="problem" class="section">
+    <h2 class="section-title">Problem Statement</h2>
+    <p class="section-subtitle">Why PRAGMA exists</p>
+
+    <div class="card">
+      <div class="card-content">
+        <p>Prediction markets and on-chain trading remain <strong>inaccessible to non-technical users</strong> due to:</p>
+        <ul>
+          <li>Complex interfaces requiring manual order execution</li>
+          <li>Constant market monitoring (24/7 attention required)</li>
+          <li>Inability to process real-time data at profitable speeds</li>
+          <li>No one-click solution for autonomous trading</li>
+        </ul>
+        <p><strong>Result:</strong> Casual traders miss opportunities, make emotional decisions, and lack the time/skill to compete with sophisticated traders.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Solution -->
+  <section id="solution" class="section">
+    <h2 class="section-title">Solution</h2>
+    <p class="section-subtitle">One-click autonomous AI trading agent</p>
+
+    <div class="card">
+      <h3 class="card-title">What PRAGMA Does</h3>
+      <div class="card-content">
+        <p>PRAGMA is an <strong>autonomous AI trading agent</strong> that executes trades on DreamDEX (Somnia blockchain) without human intervention after a single "Activate Agent" click.</p>
+
+        <p><strong>Core Features:</strong></p>
+        <ul>
+          <li><span class="badge">Event Contracts</span> Binary Up/Down prediction markets (e.g. "Will BTC hit $65K by Friday?")</li>
+          <li><span class="badge">Spot Markets</span> CLOB order book trading (ETH/USDC, BTC/USDC, etc.)</li>
+          <li><span class="badge">AI Decision Engine</span> Groq API (Llama 3.3 70B) analyzes markets and decides trades in sub-second</li>
+          <li><span class="badge">Risk Management</span> Stop-loss (-20%), take-profit (staged exits), daily loss limits</li>
+          <li><span class="badge">Live Dashboard</span> Real-time P&L, positions, trade history, AI reasoning logs</li>
+          <li><span class="badge">Telegram Alerts</span> Instant trade notifications + morning summaries + manual commands</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h3 class="card-title">Core User</h3>
+        <div class="card-content">
+          Crypto-curious individuals, casual traders, DeFi enthusiasts who want exposure to prediction markets but lack time/skill to trade manually. Comfortable connecting a wallet, need abstraction for strategy execution.
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="card-title">Success Metric</h3>
+        <div class="card-content">
+          <strong>3-minute demo flow:</strong> Connect wallet → Pick strategy → Activate agent → Agent reads markets → AI decides → Trade executes → Dashboard updates live → Telegram alert received → Position shows profit.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Architecture -->
+  <section id="architecture" class="section">
+    <h2 class="section-title">System Architecture</h2>
+    <p class="section-subtitle">Full-stack topology</p>
+
+    <div class="diagram">┌─────────────────────────────────────────────────────┐
+│           USER (Browser)                            │
+│  Next.js 15 Dashboard + Wallet Connection          │
+└──────────────────┬──────────────────────────────────┘
+                   │
+    ┌──────────────┼──────────────┐
+    │              │              │
+    ▼              ▼              ▼
+┌────────┐  ┌───────────┐  ┌──────────────┐
+│Supabase│  │  DreamDEX │  │  Agent Engine│
+│(trades,│  │ WebSocket │  │ (TypeScript) │
+│ state) │  │   + REST  │  │              │
+└────────┘  └───────────┘  └──────┬───────┘
+                                   │
+                    ┌──────────────┼──────────────┐
+                    ▼              ▼              ▼
+              ┌─────────┐    ┌─────────┐   ┌─────────┐
+              │Groq API │    │DreamDEX │   │Telegram │
+              │(AI brain│    │   SDK   │   │   Bot   │
+              │ Llama)  │    │(execute)│   │(alerts) │
+              └─────────┘    └─────────┘   └─────────┘
+                                   │
+                                   ▼
+                    ┌──────────────────────────┐
+                    │ Somnia Shannon Testnet   │
+                    │ Chain ID: 50312          │
+                    │ - Event Contract Markets │
+                    │ - Spot Markets (CLOB)    │
+                    └──────────────────────────┘</div>
+
+    <div class="card">
+      <h3 class="card-title">Key Components</h3>
+      <div class="card-content">
+        <p><strong>Frontend (Next.js 15):</strong> Dashboard UI, wallet connection, real-time updates via WebSocket subscriptions</p>
+        <p><strong>Agent Engine (Node.js server):</strong> Runs every 60s, reads markets, asks AI for decision, executes trades, writes to Supabase, sends Telegram alerts</p>
+        <p><strong>Database (Supabase):</strong> PostgreSQL tables for users, trades, agent_state, ai_decisions — with real-time subscriptions</p>
+        <p><strong>AI Layer:</strong> Groq primary (sub-second), OpenRouter fallback (when rate limited)</p>
+        <p><strong>Blockchain:</strong> Somnia Shannon Testnet — tUSDC collateral, STT gas, DreamDEX markets</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- User Flow -->
+  <section id="userflow" class="section">
+    <h2 class="section-title">End-to-End User Flow</h2>
+    <p class="section-subtitle">7 phases from wallet connection to payout</p>
+
+    <div class="card">
+      <h3 class="card-title">Phase 1: Wallet Connection & Setup</h3>
+      <div class="card-content">
+        <ol>
+          <li>User opens PRAGMA dashboard</li>
+          <li>Clicks "Connect Wallet" → MetaMask/Zerion connects to Somnia Shannon Testnet</li>
+          <li>Dashboard displays: wallet address, tUSDC balance, STT balance</li>
+          <li>User selects risk profile:
+            <ul>
+              <li><strong>Conservative:</strong> 5% position size, -10% stop-loss, event contracts only</li>
+              <li><strong>Balanced:</strong> 10% position size, -20% stop-loss, spot + event</li>
+              <li><strong>Aggressive:</strong> 15% position size, -30% stop-loss, high-frequency</li>
+            </ul>
+          </li>
+          <li>User sets trading budget (e.g. 50 tUSDC)</li>
+          <li>Clicks "Activate Agent" → engine starts</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="card-title">Phase 2: Market Discovery & Analysis</h3>
+      <div class="card-content">
+        <p><strong>Agent engine (every 60 seconds):</strong></p>
+        <ol>
+          <li>Fetch live markets via <code>loadMarkets()</code> from DreamDEX SDK</li>
+          <li>Filter: <code>isBinaryMarket()</code> for event contracts + spot markets with active order books</li>
+          <li>Stream real-time data via WebSocket: order book depth, trade feed, candles</li>
+          <li>Aggregate context: current odds, volume, spread, price momentum</li>
+          <li>Format as structured JSON for AI consumption</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="card-title">Phase 3: AI Decision Making</h3>
+      <div class="card-content">
+        <p><strong>Input sent to Groq API (Llama 3.3 70B):</strong></p>
+        <pre><code>{
+  "markets": [
+    {
+      "id": "BTC-65K-FRI",
+      "type": "event_contract",
+      "currentOdds": 0.67,
+      "volume24h": 12500,
+      "priceMomentum": "bullish"
+    }
+  ],
+  "portfolio": {
+    "budget": 50,
+    "openPositions": 0,
+    "dailyPnL": 0
+  },
+  "rules": {
+    "maxPositionSize": 0.10,
+    "stopLoss": -0.20,
+    "takeProfit": [2.0, 5.0]
+  }
+}</code></pre>
+        <p><strong>AI returns decision:</strong></p>
+        <pre><code>{
+  "action": "BUY_EVENT_UP",
+  "market": "BTC-65K-FRI",
+  "size": 5,
+  "entryPrice": 0.67,
+  "confidence": 0.82,
+  "rationale": "BTC showing bullish momentum..."
+}</code></pre>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="card-title">Phase 4: Trade Execution</h3>
+      <div class="card-content">
+        <p><strong>Agent executes via DreamDEX SDK:</strong></p>
+        <pre><code>await createOrder({
+  market: "BTC-65K-FRI",
+  side: "BUY",
+  position: "UP",
+  size: 5,  // 5 tUSDC
+  price: 0.67
+})</code></pre>
+        <p>Transaction sent → Confirmed on Somnia → Position opened ✅</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="card-title">Phase 5: State Persistence & Notification</h3>
+      <div class="card-content">
+        <ol>
+          <li><strong>Write to Supabase:</strong> Insert trade row (market, action, size, price, rationale) + update agent_state</li>
+          <li><strong>Send Telegram alert:</strong> "🟢 TRADE EXECUTED | BUY BTC-65K-FRI UP | 5 tUSDC @ 0.67 | Confidence: 82%"</li>
+          <li><strong>Dashboard updates live:</strong> WebSocket subscription triggers — trade history row appears, P&L chart updates, agent activity log shows new decision</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="card-title">Phase 6: Settlement & Redemption</h3>
+      <div class="card-content">
+        <p><strong>When market expires:</strong></p>
+        <ol>
+          <li>Agent monitors <code>MarketResolved</code> event via on-chain logs</li>
+          <li>Winning outcome determined (e.g. UP wins)</li>
+          <li>Agent claims: <code>mergePositions()</code> if needed → <code>claimPayout()</code></li>
+          <li>tUSDC credited to agent wallet</li>
+          <li>Telegram: "🎉 MARKET RESOLVED | BTC-65K-FRI: UP WON | Profit: +$2.46 (+49% ROI)"</li>
+          <li>Dashboard: trade history updated with final P&L</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="card-title">Phase 7: Continuous Loop</h3>
+      <div class="card-content">
+        <p><strong>Agent runs every 60 seconds until paused:</strong></p>
+        <ul>
+          <li>Check open positions for stop-loss / take-profit triggers</li>
+          <li>Fetch latest market data</li>
+          <li>AI evaluates new opportunities</li>
+          <li>Execute trades if confidence > threshold</li>
+          <li>Update state and notify</li>
+          <li>Repeat ∞</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Data Flow -->
+  <section id="dataflow" class="section">
+    <h2 class="section-title">Data Flow Diagram</h2>
+    <p class="section-subtitle">How information moves through PRAGMA</p>
+
+    <div class="diagram">┌─────────────────┐
+│  DreamDEX API   │  WebSocket: live order book, trades, candles
+│  (REST + WS)    │  REST: market discovery, historical data
+└────────┬────────┘
+         │
+         ▼
+┌──────────────────────────────────────────────────┐
+│           Agent Engine (TypeScript)              │
+│  - Market reader: fetch + filter markets         │
+│  - Decision requester: sends context to AI       │
+│  - Trade executor: DreamDEX SDK → blockchain     │
+│  - State writer: Supabase insert/update          │
+│  - Alerter: Telegram bot send message            │
+└──┬────────────┬─────────────┬──────────────┬────┘
+   │            │             │              │
+   ▼            ▼             ▼              ▼
+┌──────┐  ┌─────────┐  ┌──────────┐  ┌──────────┐
+│Groq  │  │Supabase │  │DreamDEX  │  │Telegram  │
+│ API  │  │(Postgres│  │SDK→Chain │  │Bot API   │
+│      │  │ + RT)   │  │          │  │          │
+└──────┘  └────┬────┘  └────┬─────┘  └────┬─────┘
+               │            │             │
+               ▼            │             │
+         ┌─────────────┐   │             │
+         │  Dashboard  │◄──┘             │
+         │  (Next.js)  │◄────────────────┘
+         │  - P&L live │
+         │  - Positions│
+         │  - History  │
+         │  - Activity │
+         └─────────────┘</div>
+
+    <div class="card">
+      <h3 class="card-title">Data Types & Sources</h3>
+      <div class="card-content">
+        <p><strong>Market Data (DreamDEX → Agent):</strong> Order book depth, trade feed, candle data, probability shifts</p>
+        <p><strong>AI Decisions (Groq → Agent):</strong> JSON: action, market, size, confidence, rationale</p>
+        <p><strong>Trade State (Agent → Supabase):</strong> Trade rows, agent_state updates, ai_decisions log</p>
+        <p><strong>Notifications (Agent → Telegram):</strong> Trade alerts, position updates, morning summaries</p>
+        <p><strong>Live Updates (Supabase → Dashboard):</strong> WebSocket subscriptions push new trades, P&L changes</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Brand & Colour -->
+  <section id="brand" class="section">
+    <h2 class="section-title">Brand & Colour System</h2>
+    <p class="section-subtitle">3 colours. Dual theme. Precision design.</p>
+
+    <div class="card">
+      <h3 class="card-title">Brand Identity</h3>
+      <div class="card-content">
+        <p><strong>Name:</strong> PRAGMA</p>
+        <p><strong>Tagline:</strong> "Don't predict. Act."</p>
+        <p><strong>Visual Tone:</strong> Precision · Autonomous · Sharp</p>
+        <p><strong>Voice:</strong> Factual, confident, minimal. No hedging. Exact numbers. Short copy. Transparent logs.</p>
+      </div>
+    </div>
+
+    <h3 style="margin-top: 32px; margin-bottom: 16px; font-size: 18px; font-weight: 600;">Core Palette (3 colours)</h3>
+    <div class="swatch-grid">
+      <div class="swatch">
+        <div class="swatch-block" style="background: #000000; border-bottom: 1px solid #1A1A1A;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Black</div>
+          <div class="swatch-hex">#000000</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background: #2563EB;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Electric Blue</div>
+          <div class="swatch-hex">#2563EB</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background: #FFFFFF; border-bottom: 1px solid #E5E5E5;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">White</div>
+          <div class="swatch-hex">#FFFFFF</div>
+        </div>
+      </div>
+    </div>
+
+    <h3 style="margin-top: 24px; margin-bottom: 16px; font-size: 18px; font-weight: 600;">Supporting Shades</h3>
+    <div class="swatch-grid">
+      <div class="swatch">
+        <div class="swatch-block" style="background: #0A0A0A;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Card Dark</div>
+          <div class="swatch-hex">#0A0A0A</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background: #F5F5F5;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Card Light</div>
+          <div class="swatch-hex">#F5F5F5</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background: #1A1A1A;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Border Dark</div>
+          <div class="swatch-hex">#1A1A1A</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background: #E5E5E5;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Border Light</div>
+          <div class="swatch-hex">#E5E5E5</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background: #6B7280;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Muted Text</div>
+          <div class="swatch-hex">#6B7280</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background: #1D4ED8;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Blue Hover</div>
+          <div class="swatch-hex">#1D4ED8</div>
+        </div>
+      </div>
+    </div>
+
+    <h3 style="margin-top: 24px; margin-bottom: 16px; font-size: 18px; font-weight: 600;">Functional Colours (data only)</h3>
+    <div class="swatch-grid">
+      <div class="swatch">
+        <div class="swatch-block" style="background: #22C55E;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Profit Green</div>
+          <div class="swatch-hex">#22C55E</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background: #EF4444;"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Loss Red</div>
+          <div class="swatch-hex">#EF4444</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top: 32px;">
+      <h3 class="card-title">Typography</h3>
+      <div class="card-content">
+        <p><strong>Display / Headings:</strong> Space Grotesk 700 (Google Fonts)</p>
+        <p><strong>Body / Data / UI:</strong> Inter 400 / 500 (Google Fonts)</p>
+        <p><strong>Type Scale:</strong></p>
+        <ul>
+          <li><code>display</code> — 48px Space Grotesk 700 (hero / landing)</li>
+          <li><code>heading-lg</code> — 32px Space Grotesk 700 (page titles)</li>
+          <li><code>heading-md</code> — 24px Space Grotesk 700 (section titles)</li>
+          <li><code>heading-sm</code> — 18px Inter 500 (card titles)</li>
+          <li><code>body</code> — 16px Inter 400 (paragraphs)</li>
+          <li><code>label</code> — 13px Inter 500 uppercase (UI labels)</li>
+          <li><code>mono-data</code> — 14px Inter 500 tabular-nums (P&L, prices)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="card-title">CSS Custom Properties (globals.css)</h3>
+      <div class="card-content">
+        <pre><code>:root {
+  --bg:           #000000;
+  --bg-card:      #0A0A0A;
+  --border:       #1A1A1A;
+  --text:         #FFFFFF;
+  --text-muted:   #6B7280;
+  --accent:       #2563EB;
+  --accent-hover: #1D4ED8;
+  --profit:       #22C55E;
+  --loss:         #EF4444;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg:         #FFFFFF;
+    --bg-card:    #F5F5F5;
+    --border:     #E5E5E5;
+    --text:       #000000;
+  }
+}
+
+:root[data-theme="light"] {
+  --bg:         #FFFFFF;
+  --bg-card:    #F5F5F5;
+  --border:     #E5E5E5;
+  --text:       #000000;
+}</code></pre>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="card-title">Usage Rules</h3>
+      <div class="card-content">
+        <ol>
+          <li><strong>Blue is the only interactive colour.</strong> Every button, link, toggle uses #2563EB.</li>
+          <li><strong>Never use blue for decorative text.</strong> Blue = interactive only.</li>
+          <li><strong>Green and red are data, not brand.</strong> P&L rows and status badges only.</li>
+          <li><strong>Blue stays the same in both themes.</strong> Background and text flip — blue is the anchor.</li>
+          <li><strong>One blue hero per view.</strong> Don't stack multiple blue elements competing for attention.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tech Stack -->
+  <section id="techstack" class="section">
+    <h2 class="section-title">Tech Stack</h2>
+    <p class="section-subtitle">Every dependency and its role</p>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Layer</th>
+            <th>Technology</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Framework</td>
+            <td>Next.js 15 + TypeScript</td>
+            <td>App Router, server components, API routes</td>
+          </tr>
+          <tr>
+            <td>Styling</td>
+            <td>Tailwind CSS v4</td>
+            <td>Utility-first responsive design</td>
+          </tr>
+          <tr>
+            <td>Animations</td>
+            <td>Framer Motion + GSAP</td>
+            <td>Page transitions, micro-interactions, counters</td>
+          </tr>
+          <tr>
+            <td>State</td>
+            <td>Zustand</td>
+            <td>Client-side reactive state (agent + trades)</td>
+          </tr>
+          <tr>
+            <td>Web3</td>
+            <td>Wagmi v2 + Viem</td>
+            <td>Wallet connection, contract reads/writes</td>
+          </tr>
+          <tr>
+            <td>DreamDEX</td>
+            <td>@somnia-chain/markets-sdk</td>
+            <td>Market data, order placement, settlement</td>
+          </tr>
+          <tr>
+            <td>AI Primary</td>
+            <td>Groq API (Llama 3.3 70B)</td>
+            <td>Sub-second trading decisions</td>
+          </tr>
+          <tr>
+            <td>AI Fallback</td>
+            <td>OpenRouter (free models)</td>
+            <td>Secondary analysis when Groq rate limits</td>
+          </tr>
+          <tr>
+            <td>Database</td>
+            <td>Supabase (PostgreSQL)</td>
+            <td>User data, trades, agent state, real-time subs</td>
+          </tr>
+          <tr>
+            <td>Telegram</td>
+            <td>Telegraf</td>
+            <td>Bot alerts and commands</td>
+          </tr>
+          <tr>
+            <td>Validation</td>
+            <td>Zod</td>
+            <td>AI response schema validation</td>
+          </tr>
+          <tr>
+            <td>Blockchain</td>
+            <td>Somnia Shannon Testnet</td>
+            <td>Chain ID 50312, EVM-compatible L1</td>
+          </tr>
+          <tr>
+            <td>Collateral</td>
+            <td>tUSDC</td>
+            <td>Testnet stablecoin for trading</td>
+          </tr>
+          <tr>
+            <td>Gas</td>
+            <td>STT</td>
+            <td>Testnet gas token</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Build Sequence -->
+  <section id="build" class="section">
+    <h2 class="section-title">Build Sequence</h2>
+    <p class="section-subtitle">7 checkpoints from setup to submission</p>
+
+    <div class="card">
+      <h3 class="card-title"><span class="badge">Checkpoint 0</span> Pre-Build: Environment Setup</h3>
+      <div class="card-content">
+        <ul>
+          <li><strong>0.1</strong> Install dependencies (zustand, wagmi, viem, SDK, groq-sdk, openai, supabase, telegraf, zod)</li>
+          <li><strong>0.2</strong> Create <code>.env.local</code> with all API keys</li>
+          <li><strong>0.3</strong> Wire Tailwind design tokens in <code>globals.css</code></li>
+        </ul>
+        <p><strong>Status:</strong> <span class="badge success">COMPLETE</span></p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="card-title"><span class="badge">Checkpoint 1</span> UI Shell</h3>
+      <div class="card-content">
+        <ul>
+          <li><strong>1.1</strong> Root layout — fonts, providers, global structure</li>
+          <li><strong>1.2</strong> Landing page — PRAGMA hero, tagline, CTA</li>
+          <li><strong>1.3</strong> Setup page — wallet connect + strategy selector + budget input</li>
+          <li><strong>1.4</strong> Dashboard page — layout grid (stats, positions, history, activity)</li>
+          <li><strong>1.5</strong> Shared components — Button, Card, Badge, StatTile</li>
+        </ul>
+        <p><strong>Goal:</strong> Visible skeleton, all pages exist and navigate</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="card-title"><span class="badge">Checkpoint 2</span> Data Connections</h3>
+      <div class="card-content">
+        <ul>
+          <li><strong>2.1</strong> Wagmi config — Somnia Shannon chain</li>
+          <li><strong>2.2</strong> Wallet connect button — MetaMask/Zerion</li>
+          <li><strong>2.3</strong> tUSDC balance display</li>
+          <li><strong>2.4</strong> DreamDEX REST client</li>
+          <li><strong>2.5</strong> API route <code>/api/markets</code></li>
+          <li><strong>2.6</strong> Zustand stores (agentStore, tradeStore)</li>
+          <li><strong>2.7</strong> Supabase client + schema (users, trades, agent_state, ai_decisions)</li>
+          <li><strong>2.8</strong> <code>useTrades</code> hook with real-time subscriptions</li>
+        </ul>
+        <p><strong>Goal:</strong> Dashboard reads live data but agent doesn't trade yet</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="card-title"><span class="badge warning">Checkpoint 3</span> Agent Core — MINIMUM VIABLE DEMO</h3>
+      <div class="card-content">
+        <ul>
+          <li><strong>3.1</strong> DreamDEX SDK initialization</li>
+          <li><strong>3.2</strong> Strategy presets (conservative/balanced/aggressive)</li>
+          <li><strong>3.3</strong> AI decision layer (Groq API + Zod validation)</li>
+          <li><strong>3.4</strong> Risk manager (stop-loss, take-profit, daily limits)</li>
+          <li><strong>3.5</strong> Trade execution (<code>placeEventOrder</code>, <code>placeSpotOrder</code>)</li>
+          <li><strong>3.6</strong> Settlement (<code>claimPayout</code>, <code>mergePositions</code>)</li>
+          <li><strong>3.7</strong> Agent engine main loop (60s tick)</li>
+          <li><strong>3.8</strong> API routes (<code>/api/agent/start</code>, <code>/stop</code>, <code>/status</code>)</li>
+          <li><strong>3.9</strong> "Activate Agent" button wired</li>
+        </ul>
+        <p><strong>Goal:</strong> <span class="badge danger">WORKING END-TO-END DEMO</span> — agent reads markets → AI decides → trade executes → Supabase updated. This is the fallback if time runs short.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="card-title"><span class="badge">Checkpoint 4</span> Live Dashboard</h3>
+      <div class="card-content">
+        <ul>
+          <li><strong>4.1</strong> WebSocket market data hook</li>
+          <li><strong>4.2</strong> Live P&L stat tiles</li>
+          <li><strong>4.3</strong> Open positions panel</li>
+          <li><strong>4.4</strong> Trade history table (real-time updates)</li>
+          <li><strong>4.5</strong> Agent activity log (last 10 AI decisions)</li>
+          <li><strong>4.6</strong> Agent controls (pause / resume)</li>
+        </ul>
+        <p><strong>Goal:</strong> Dashboard shows everything live as agent trades</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="card-title"><span class="badge">Checkpoint 5</span> Telegram Bot</h3>
+      <div class="card-content">
+        <ul>
+          <li><strong>5.1</strong> Bot setup + commands (<code>/status</code>, <code>/positions</code>, <code>/pnl</code>, <code>/pause</code>, <code>/resume</code>)</li>
+          <li><strong>5.2</strong> Alert formatters (trade execution, position update, market resolved)</li>
+          <li><strong>5.3</strong> Webhook/polling API route</li>
+          <li><strong>5.4</strong> Morning summary cron job</li>
+        </ul>
+        <p><strong>Goal:</strong> User gets instant Telegram alerts for every trade</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="card-title"><span class="badge">Checkpoint 6</span> Polish</h3>
+      <div class="card-content">
+        <ul>
+          <li><strong>6.1</strong> Framer Motion page transitions</li>
+          <li><strong>6.2</strong> GSAP number counters (P&L animations)</li>
+          <li><strong>6.3</strong> Agent pulse indicator</li>
+          <li><strong>6.4</strong> Empty states (no trades yet, no positions)</li>
+          <li><strong>6.5</strong> Responsive check (mobile + tablet)</li>
+          <li><strong>6.6</strong> Health check route (<code>/api/health</code>)</li>
+          <li><strong>6.7</strong> README update</li>
+          <li><strong>6.8</strong> <code>.env.example</code> file</li>
+        </ul>
+        <p><strong>Goal:</strong> Judge-ready quality</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="card-title"><span class="badge">Checkpoint 7</span> Demo & Submission</h3>
+      <div class="card-content">
+        <ul>
+          <li><strong>7.1</strong> Demo path rehearsal (3-minute flow)</li>
+          <li><strong>7.2</strong> Record demo video</li>
+          <li><strong>7.3</strong> Push to GitHub</li>
+          <li><strong>7.4</strong> Submit before Sep 8 deadline</li>
+        </ul>
+        <p><strong>Deadline:</strong> <span class="badge danger">Sep 8, 2026</span></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Environment Variables -->
+  <section id="env" class="section">
+    <h2 class="section-title">Environment Variables</h2>
+    <p class="section-subtitle">Complete .env.local reference</p>
+
+    <div class="card">
+      <h3 class="card-title">.env.local</h3>
+      <div class="card-content">
+        <pre><code># DreamDEX (public — safe to expose)
+NEXT_PUBLIC_DREAMDEX_REST_URL=https://stg.api.dreamdex.io/v0
+NEXT_PUBLIC_DREAMDEX_WS_URL=wss://stg.api.dreamdex.io/v0/ws/public
+NEXT_PUBLIC_DREAMDEX_RPC_URL=https://dream-rpc.somnia.network
+NEXT_PUBLIC_CHAIN_ID=50312
+
+# AI Models (server only)
+GROQ_API_KEY=                      # console.groq.com
+OPENROUTER_API_KEY=                # openrouter.ai
+
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=          # project settings → API
+NEXT_PUBLIC_SUPABASE_ANON_KEY=     # project settings → API
+SUPABASE_SERVICE_ROLE_KEY=         # project settings → API (server only)
+
+# Telegram
+TELEGRAM_BOT_TOKEN=                # @BotFather → /newbot
+TELEGRAM_CHAT_ID=                  # @userinfobot → id field
+
+# Agent Wallet (server only — NEVER NEXT_PUBLIC_)
+AGENT_PRIVATE_KEY=                 # testnet wallet private key
+AGENT_PUBLIC_KEY=                  # testnet wallet public address</code></pre>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3 class="card-title">Where to Get Keys</h3>
+      <div class="card-content">
+        <p><strong>Groq API:</strong> <a href="https://console.groq.com" target="_blank" style="color: var(--accent);">console.groq.com</a> → API Keys → Create key (free tier)</p>
+        <p><strong>OpenRouter:</strong> <a href="https://openrouter.ai" target="_blank" style="color: var(--accent);">openrouter.ai</a> → Keys → Create key (free tier)</p>
+        <p><strong>Supabase:</strong> <a href="https://supabase.com" target="_blank" style="color: var(--accent);">supabase.com</a> → New Project → Settings → API (3 keys)</p>
+        <p><strong>Telegram Bot:</strong> Message <code>@BotFather</code> on Telegram → <code>/newbot</code> → copy token</p>
+        <p><strong>Telegram Chat ID:</strong> Message <code>@userinfobot</code> → copy <code>Id</code> field</p>
+        <p><strong>Agent Wallet:</strong> Create fresh wallet in MetaMask/Zerion → export private key (NEVER your main wallet)</p>
+        <p><strong>Fund Agent Wallet:</strong> <a href="https://faucet.somnia.network" target="_blank" style="color: var(--accent);">faucet.somnia.network</a> → request STT (gas) + get tUSDC from DreamDEX testnet UI</p>
+      </div>
+    </div>
+  </section>
+
+</div>

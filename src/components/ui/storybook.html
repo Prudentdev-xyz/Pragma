@@ -1,0 +1,298 @@
+<title>PRAGMA UI Primitives</title>
+<style>
+  :root {
+    --bg: #000000;
+    --bg-card: #0A0A0A;
+    --border: #1A1A1A;
+    --text: #FFFFFF;
+    --text-muted: #6B7280;
+    --accent: #2563EB;
+    --accent-hover: #1D4ED8;
+    --profit: #22C55E;
+    --loss: #EF4444;
+    --font-display: 'Space Grotesk', -apple-system, sans-serif;
+    --font-body: 'Inter', -apple-system, sans-serif;
+  }
+
+  :root[data-theme="light"] {
+    --bg: #FFFFFF;
+    --bg-card: #F5F5F5;
+    --border: #E5E5E5;
+    --text: #000000;
+    --text-muted: #6B7280;
+    --accent: #2563EB;
+    --accent-hover: #1D4ED8;
+    --profit: #16A34A;
+    --loss: #DC2626;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    padding: 32px 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+    line-height: 1.5;
+  }
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 20px;
+    margin-bottom: 32px;
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .tag {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .theme-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .grid-section {
+    margin-bottom: 40px;
+  }
+
+  .section-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .showcase {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
+  }
+
+  /* Primitives preview styles */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+    text-decoration: none;
+  }
+
+  .btn-primary { background: var(--accent); color: white; border: 1px solid var(--accent); }
+  .btn-primary:hover { background: var(--accent-hover); }
+
+  .btn-secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { background: var(--bg-card); }
+
+  .btn-ghost { background: transparent; color: var(--text); border: 1px solid transparent; }
+  .btn-ghost:hover { background: var(--bg-card); }
+
+  .btn-sm { padding: 6px 12px; font-size: 12px; min-height: 28px; }
+  .btn-md { padding: 8px 16px; font-size: 14px; min-height: 36px; }
+  .btn-lg { padding: 10px 24px; font-size: 16px; min-height: 44px; }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    flex: 1;
+    min-width: 260px;
+  }
+
+  .card-title {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .card-copy {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 6px;
+    padding: 2px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  .badge-profit { background: var(--profit); color: white; border: 1px solid var(--profit); }
+  .badge-loss { background: var(--loss); color: white; border: 1px solid var(--loss); }
+  .badge-neutral { background: var(--bg-card); color: var(--text); border: 1px solid var(--border); }
+  .badge-active { background: var(--accent); color: white; border: 1px solid var(--accent); }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+  }
+
+  .stat-tile {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .stat-val {
+    font-size: 28px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat-val.profit { color: var(--profit); }
+  .stat-val.loss { color: var(--loss); }
+
+  .stat-detail {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  footer {
+    border-top: 1px solid var(--border);
+    padding-top: 20px;
+    margin-top: 40px;
+    font-size: 12px;
+    color: var(--text-muted);
+    text-align: center;
+  }
+</style>
+
+<header>
+  <div>
+    <div class="tag">Task 1.5 Verification · Storybook</div>
+    <h1>PRAGMA UI Primitives</h1>
+  </div>
+  <button class="theme-btn" id="themeToggle" onclick="toggleTheme()">Toggle theme</button>
+</header>
+
+<main>
+  <!-- 1. Button -->
+  <section class="grid-section">
+    <div class="section-title">01 · Button (variant × size)</div>
+    <div class="showcase">
+      <button class="btn btn-primary btn-sm">Primary SM</button>
+      <button class="btn btn-primary btn-md">Primary MD</button>
+      <button class="btn btn-primary btn-lg">Primary LG</button>
+      <button class="btn btn-secondary btn-md">Secondary</button>
+      <button class="btn btn-ghost btn-md">Ghost</button>
+      <button class="btn btn-primary btn-md" disabled style="opacity: 0.5; cursor: not-allowed;">Disabled</button>
+    </div>
+  </section>
+
+  <!-- 2. Badge -->
+  <section class="grid-section">
+    <div class="section-title">02 · Badge (variants)</div>
+    <div class="showcase">
+      <span class="badge badge-active">● Active</span>
+      <span class="badge badge-profit">+2.41% Profit</span>
+      <span class="badge badge-loss">-0.85% Loss</span>
+      <span class="badge badge-neutral">Neutral / 1H</span>
+    </div>
+  </section>
+
+  <!-- 3. StatTile -->
+  <section class="grid-section">
+    <div class="section-title">03 · StatTile (KPI cards)</div>
+    <div class="stat-grid">
+      <div class="stat-tile">
+        <div class="stat-label">Total P&L</div>
+        <div class="stat-val profit">+$84.17</div>
+        <div class="stat-detail">+2.41% since activation</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-label">Max Drawdown</div>
+        <div class="stat-val loss">-1.8%</div>
+        <div class="stat-detail">Threshold: -5.0%</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-label">Open Positions</div>
+        <div class="stat-val">03</div>
+        <div class="stat-detail">Aggressive posture</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-label">Win Rate</div>
+        <div class="stat-val">76.4%</div>
+        <div class="stat-detail">13 of 17 trades</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Card -->
+  <section class="grid-section">
+    <div class="section-title">04 · Card (container primitive)</div>
+    <div class="showcase">
+      <div class="card">
+        <div class="card-title">Strategy Profile</div>
+        <div class="card-copy">
+          Balanced posture configured with 40% max position size and 5% hard stop-loss.
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Network Guardrail</div>
+        <div class="card-copy">
+          Connected to Somnia Shannon Testnet. Funds remain non-custodial in operator wallet.
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  All 4 primitives verified: Button, Card, Badge, StatTile · Checkpoint 1 Complete
+</footer>
+
+<script>
+  function toggleTheme() {
+    const root = document.documentElement;
+    const current = root.getAttribute('data-theme');
+    const next = current === 'light' ? 'dark' : 'light';
+    root.setAttribute('data-theme', next);
+    document.getElementById('themeToggle').textContent = next === 'light' ? 'Dark theme' : 'Light theme';
+  }
+</script>
