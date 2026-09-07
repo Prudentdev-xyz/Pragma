@@ -125,10 +125,25 @@ export default function DashboardPage() {
     return () => ctx.revert();
   }, []);
 
-  const toggleAgent = () => {
+  const toggleAgent = async () => {
     const next = !active;
     setActive(next);
     localStorage.setItem('pragma-active', String(next));
+
+    try {
+      const endpoint = next ? '/api/agent/start' : '/api/agent/stop';
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          preset: localStorage.getItem('pragma-risk') || 'Balanced',
+          budget: Number(localStorage.getItem('pragma-budget')) || 2500,
+        }),
+      });
+      if (!res.ok) console.warn(`Agent ${next ? 'start' : 'stop'} failed`);
+    } catch (err) {
+      console.warn('Agent control request failed:', err);
+    }
   };
 
   return (

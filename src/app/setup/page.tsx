@@ -104,14 +104,38 @@ export default function SetupPage() {
     return () => ctx.revert();
   }, []);
 
-  const activate = () => {
+  const [activating, setActivating] = useState(false);
+
+  const activate = async () => {
     if (!walletAddress) {
       return;
     }
+    setActivating(true);
     localStorage.setItem('pragma-active', 'true');
     localStorage.setItem('pragma-risk', risk);
     localStorage.setItem('pragma-budget', budget);
-    router.push('/dashboard');
+
+    try {
+      // Kick off the autonomous loop on the server
+      const res = await fetch('/api/agent/start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          preset: risk,
+          budget: Number(budget),
+          wallet: walletAddress,
+        }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        console.warn('Agent start failed:', body.error);
+      }
+    } catch (err) {
+      console.warn('Agent start request failed:', err);
+    } finally {
+      setActivating(false);
+      router.push('/dashboard');
+    }
   };
 
   const maxDrawdown =
@@ -288,11 +312,11 @@ export default function SetupPage() {
               <motion.button
                 className="button button-primary"
                 onClick={activate}
-                disabled={!walletAddress || !budget || Number(budget) <= 0}
+                disabled={!walletAddress || !budget || Number(budget) <= 0 || activating}
                 data-testid="button-activate-agent"
                 whileTap={{ scale: 0.97 }}
               >
-                Activate Agent <ArrowRight size={15} />
+                {activating ? 'Starting…' : <>Activate Agent <ArrowRight size={15} /></>}
               </motion.button>
             </div>
           </section>
