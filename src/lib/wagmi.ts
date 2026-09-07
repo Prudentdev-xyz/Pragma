@@ -23,29 +23,12 @@ export const somniaTestnet: Chain = defineChain({
   testnet: true,
 });
 
-// Register separate connectors for each major wallet
-// This makes them appear as individual options in the wallet modal
+// Injected connector with EIP-6963 discovery handles Zerion, MetaMask, Rabby, Phantom, etc.
 export const config = createConfig({
   chains: [somniaTestnet],
   connectors: [
-    injected({
-      target: 'metaMask',
-      unstable_shimAsyncInject: 2000,
-    }),
-    injected({
-      target: 'zerion',
-      unstable_shimAsyncInject: 2000,
-    }),
-    injected({
-      target: 'phantom',
-      unstable_shimAsyncInject: 2000,
-    }),
-    injected({
-      target: 'rabby',
-      unstable_shimAsyncInject: 2000,
-    }),
+    injected(),
     coinbaseWallet({ appName: 'PRAGMA' }),
-    injected(), // Fallback for any other injected wallet
   ],
   transports: {
     [somniaTestnet.id]: http(),

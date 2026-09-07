@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "bot": "node --env-file=.env.local scripts/bot-worker.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"

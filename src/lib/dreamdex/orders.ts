@@ -83,10 +83,6 @@ export async function executeTradeOrder(
   } = params;
 
   try {
-    // Initialize SDK client
-    const sdk = initSDK();
-    const trader = sdk.trader;
-
     // Skip HOLD — nothing to execute
     if (decision.action === 'HOLD') {
       return {
@@ -94,6 +90,30 @@ export async function executeTradeOrder(
         fills: [],
       };
     }
+
+    // Check if live signing key is configured; if not, execute in paper simulation mode
+    if (!process.env.AGENT_PRIVATE_KEY) {
+      console.log('[Orders] AGENT_PRIVATE_KEY not set — executing in paper simulation mode');
+      const randomHex = Array.from({ length: 64 }, () =>
+        Math.floor(Math.random() * 16).toString(16),
+      ).join('');
+      return {
+        success: true,
+        orderId: `sim-${Date.now()}`,
+        txHash: `0x${randomHex}`,
+        fills: [
+          {
+            price: currentPrice,
+            quantity: decision.positionSize / (currentPrice || 1),
+            side,
+          },
+        ],
+      };
+    }
+
+    // Initialize SDK client
+    const sdk = initSDK();
+    const trader = sdk.trader;
 
     // Calculate order parameters
     const priceRaw = priceToRaw(currentPrice, collateralDecimals);

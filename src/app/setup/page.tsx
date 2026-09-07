@@ -5,11 +5,12 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { gsap } from 'gsap';
-import { useAccount } from 'wagmi';
+import { useAccount, useDisconnect } from 'wagmi';
 import {
   ArrowRight,
   Check,
   ChevronRight,
+  LogOut,
   ShieldCheck,
 } from 'lucide-react';
 import { Logo, ThemeButton } from '@/components/pragma-ui';
@@ -82,6 +83,12 @@ export default function SetupPage() {
 
   // Wallet state from wagmi
   const { address: walletAddress, isConnected } = useAccount();
+  const { disconnect } = useDisconnect();
+
+  const handleDisconnect = () => {
+    disconnect();
+    localStorage.removeItem('pragma-wallet');
+  };
 
   // Persist wallet in localStorage for page reloads
   useEffect(() => {
@@ -159,14 +166,15 @@ export default function SetupPage() {
         </div>
       </header>
 
-      <main className="setup-page" ref={mainRef}>
+      <motion.main
+        className="setup-page"
+        ref={mainRef}
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, ease: 'easeOut' }}
+      >
         {/* Heading */}
-        <motion.div
-          className="setup-head"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        >
+        <div className="setup-head">
           <div>
             <div className="eyebrow">Activation sequence / 02</div>
             <h1>Give PRAGMA a mandate.</h1>
@@ -175,7 +183,7 @@ export default function SetupPage() {
             No API keys. No custody handoff. Configure the boundaries, then keep
             a clear view of every move.
           </p>
-        </motion.div>
+        </div>
 
         <div className="setup-layout">
           {/* Main card */}
@@ -206,8 +214,20 @@ export default function SetupPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="connected-label">
-                    <Check size={13} /> Connected
+                  <div className="wallet-right">
+                    <div className="connected-label">
+                      <Check size={13} /> Connected
+                    </div>
+                    <button
+                      type="button"
+                      className="button button-quiet button-sm disconnect-btn"
+                      onClick={handleDisconnect}
+                      data-testid="button-disconnect-wallet"
+                      title="Disconnect wallet"
+                    >
+                      <LogOut size={13} />
+                      <span>Disconnect</span>
+                    </button>
                   </div>
                 </motion.div>
               ) : (
@@ -354,7 +374,7 @@ export default function SetupPage() {
             </div>
           </aside>
         </div>
-      </main>
+      </motion.main>
 
       {/* Wallet selector modal */}
       <WalletModal open={walletModalOpen} onClose={() => setWalletModalOpen(false)} />

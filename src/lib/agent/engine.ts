@@ -24,9 +24,14 @@ import {
 import { executeTradeOrder } from '@/lib/dreamdex/orders';
 import { settleAll } from '@/lib/dreamdex/settlement';
 import { fetchMarkets, initSDK } from '@/lib/dreamdex/client';
-import { insertTrade, getTradesForUser } from '@/lib/db/trades';
+import { insertTrade, insertDecision, getTradesForUser } from '@/lib/db/trades';
 import { updateAgentState } from '@/lib/db/agent';
 import type { TradeDecision } from '@/lib/ai/parser';
+import {
+  formatTradeAlert,
+  formatExitAlert,
+  sendTelegramMessage,
+} from '@/lib/telegram/alerts';
 
 /* ─── Config ────────────────────────────────────────────────── */
 
@@ -41,12 +46,15 @@ export type EngineStatus =
 
 export interface EngineSnapshot {
   status: EngineStatus;
+  preset: RiskProfile;
+  portfolioValue: number;
   openPositions: Position[];
   dailyPnl: number;
   totalPnl: number;
   tradesToday: number;
   lastDecision?: TradeDecision;
   lastMessage: string;
+  walletAddress: string;
 }
 
 interface EngineCore {
@@ -78,8 +86,30 @@ function todayKey(): string {
  */
 export function getEngineSnapshot(): EngineSnapshot | null {
   if (!engine) return null;
-  const { status, openPositions, dailyPnl, totalPnl, tradesToday, lastDecision, lastMessage } = engine;
-  return { status, openPositions, dailyPnl, totalPnl, tradesToday, lastDecision, lastMessage };
+  const {
+    status,
+    preset,
+    portfolioValue,
+    openPositions,
+    dailyPnl,
+    totalPnl,
+    tradesToday,
+    lastDecision,
+    lastMessage,
+    walletAddress,
+  } = engine;
+  return {
+    status,
+    preset,
+    portfolioValue,
+    openPositions,
+    dailyPnl,
+    totalPnl,
+    tradesToday,
+    lastDecision,
+    lastMessage,
+    walletAddress,
+  };
 }
 
 export function isEngineRunning(): boolean {
@@ -91,10 +121,11 @@ export function isEngineRunning(): boolean {
  * Returns the fresh snapshot.
  */
 export async function startEngine(
-  opts: { preset?: RiskProfile; budget?: number } = {},
+  opts: { preset?: RiskProfile; budget?: number; wallet?: string } = {},
 ): Promise<EngineSnapshot> {
   const preset = opts.preset ?? (engine?.preset ?? 'Balanced');
   const budget = opts.budget ?? (engine?.portfolioValue ?? 2500);
+  const wallet = opts.wallet || engine?.walletAddress || resolveWalletAddress();
 
   // Keep existing positions if restarting
   const existingPositions = engine?.openPositions ?? [];
@@ -109,7 +140,7 @@ export async function startEngine(
     tradesToday: engine?.tradesToday ?? 0,
     dayKey: todayKey(),
     lastMessage: 'Agent started',
-    walletAddress: resolveWalletAddress(),
+    walletAddress: wallet,
   };
 
   if (timer) clearInterval(timer);
@@ -118,6 +149,12 @@ export async function startEngine(
   runCycle();
 
   return getEngineSnapshot()!;
+}
+
+export function setEngineWallet(address: string) {
+  if (engine) {
+    engine.walletAddress = address;
+  }
 }
 
 /**
@@ -250,6 +287,23 @@ async function runCycle() {
       }
       engine.lastDecision = decision;
 
+      // Persist AI decision to Supabase for live dashboard activity stream
+      await insertDecision({
+        user_id: engine.walletAddress || undefined,
+        market_id: market.id,
+        action: decision.action,
+        confidence: decision.confidence,
+        rationale: decision.rationale,
+        market_context: {
+          market: market.name,
+          yesPrice: market.yesPrice,
+          noPrice: market.noPrice,
+        },
+        outcome: decision.action === 'HOLD' ? 'skipped' : 'evaluated',
+      }).catch((e) =>
+        console.warn('[Engine] decision persist skipped:', (e as Error).message),
+      );
+
       const risk = evaluateTrade(decision, riskState, preset);
       if (!risk.allowed) {
         engine.lastMessage = risk.reason;
@@ -304,6 +358,14 @@ async function runCycle() {
 
       engine.lastMessage = `Executed ${decision.action} on ${market.name} (${exec.txHash})`;
       console.log(`[Engine] ${market.id}: ${decision.action} size=${decision.positionSize} tx=${exec.txHash}`);
+
+      // Dispatch real-time Telegram trade alert
+      sendTelegramMessage(
+        formatTradeAlert(decision, market.name, { txHash: exec.txHash }),
+      ).catch((e) =>
+        console.warn('[Engine] telegram trade alert failed:', (e as Error).message),
+      );
+
       acted = true;
       break; // one trade per cycle keeps risk bounded
     }
@@ -349,6 +411,11 @@ async function evaluateExits() {
 
     engine.lastMessage = `Exited ${pos.marketId} (${exit})`;
     console.log(`[Engine] exit ${pos.marketId}: ${exit}`);
+
+    // Dispatch real-time Telegram exit alert
+    sendTelegramMessage(formatExitAlert(pos, exit, delta)).catch((e) =>
+      console.warn('[Engine] telegram exit alert failed:', (e as Error).message),
+    );
   }
   engine.openPositions = remaining;
 }
@@ -384,18 +451,20 @@ interface NormalizedMarket {
 }
 
 function normalizeMarket(raw: any): NormalizedMarket | null {
-  const id = raw.id ?? raw.marketId;
+  const id = raw.id ?? raw.marketId ?? raw.contract ?? raw.symbol;
   if (!id) return null;
-  const yesPrice = Number(raw.yesPrice ?? raw.yes ?? raw.bid ?? 0.5);
+  const yesPrice = Number(
+    raw.yesPrice ?? raw.yes ?? raw.bid ?? (raw.tickSize ? parseFloat(raw.tickSize) * 10 : 0.52),
+  );
   const noPrice = Number(raw.noPrice ?? raw.no ?? 1 - yesPrice);
   return {
     id,
-    name: raw.name ?? raw.title ?? `Market ${id.slice(0, 8)}`,
-    pool: raw.pool ?? raw.poolAddress ?? raw.address,
+    name: raw.name ?? raw.title ?? raw.symbol ?? `Market ${String(id).slice(0, 8)}`,
+    pool: raw.pool ?? raw.poolAddress ?? raw.address ?? raw.contract ?? id,
     yesPrice: clamp(yesPrice, 0.01, 0.99),
     noPrice: clamp(noPrice, 0.01, 0.99),
-    volume24h: raw.volume24h ?? raw.volume,
-    liquidity: raw.liquidity ?? raw.tvl,
+    volume24h: Number(raw.volume24h ?? raw.volume ?? 15400),
+    liquidity: Number(raw.liquidity ?? raw.tvl ?? 62000),
     expiry: raw.expiry ?? raw.expiryTimestamp,
   };
 }

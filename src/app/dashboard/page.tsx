@@ -1,22 +1,28 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { gsap } from 'gsap';
+import { useAccount } from 'wagmi';
 import {
   Activity,
   LayoutDashboard,
-  Pause,
-  Play,
   SlidersHorizontal,
-  Wallet,
+  Send,
 } from 'lucide-react';
 import { Logo, ThemeButton } from '@/components/pragma-ui';
 import { useTheme } from '@/hooks/use-theme';
+import { useMarkets } from '@/hooks/useMarkets';
+import { useAgentStore } from '@/store/agentStore';
 
-/* ─── Placeholder chart (no live data yet) ────────────────────── */
+import { AgentControls } from '@/components/dashboard/AgentControls';
+import { PnLStats } from '@/components/dashboard/PnLStats';
+import { PositionsPanel } from '@/components/dashboard/PositionsPanel';
+import { AgentActivity } from '@/components/dashboard/AgentActivity';
+import { TradeHistory } from '@/components/dashboard/TradeHistory';
+
+/* ─── Placeholder chart ──────────────────────────────────────── */
 const FLAT_POINTS = '0,168 100,168 200,168 300,168 400,168 500,168 600,168 700,168';
 
 function PlaceholderChart() {
@@ -51,100 +57,48 @@ function PlaceholderChart() {
   );
 }
 
-/* ─── KPI metric card ────────────────────────────────────────── */
-function Metric({
-  icon,
-  label,
-  value,
-  detail,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-  detail: string;
-}) {
-  return (
-    <section
-      className="dash-card metric-card"
-      data-testid={`metric-${label.toLowerCase().replaceAll(' ', '-')}`}
-    >
-      <div className="metric-top">
-        <span>{label}</span>
-        <span className="metric-icon">{icon}</span>
-      </div>
-      <div className="metric-number">{value}</div>
-      <div className="metric-sub">{detail}</div>
-    </section>
-  );
-}
-
-/* ─── Empty panel state ──────────────────────────────────────── */
-function EmptyPanel({
-  icon,
-  title,
-  copy,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  copy: string;
-}) {
-  return (
-    <div className="empty-state">
-      <span className="empty-icon">{icon}</span>
-      <b>{title}</b>
-      <p>{copy}</p>
-    </div>
-  );
-}
-
 /* ─── Page ──────────────────────────────────────────────────── */
 export default function DashboardPage() {
-  const router = useRouter();
   const { theme, toggle } = useTheme();
   const gridRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
+  const { address: walletAddress, isConnected } = useAccount();
+  const { openPositions, isActive } = useAgentStore();
 
-  const [active, setActive] = useState(true);
-
-  // Read persisted active state on mount
   useEffect(() => {
-    setActive(localStorage.getItem('pragma-active') !== 'false');
+    setMounted(true);
   }, []);
 
-  // GSAP stagger entrance for metric cards
+  // Initialize WebSocket & REST market data feed
+  const { isConnected: isWsConnected } = useMarkets();
+
+  // GSAP stagger entrance for metric cards (50ms per panel)
   useEffect(() => {
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
     const ctx = gsap.context(() => {
       gsap.from('.dash-card', {
         opacity: 0,
-        y: 24,
-        stagger: 0.07,
-        duration: 0.55,
+        y: 16,
+        stagger: 0.05,
+        duration: 0.45,
         ease: 'power2.out',
-        delay: 0.1,
+        delay: 0.05,
       });
     }, gridRef);
     return () => ctx.revert();
   }, []);
 
-  const toggleAgent = async () => {
-    const next = !active;
-    setActive(next);
-    localStorage.setItem('pragma-active', String(next));
+  const shorten = (addr: string) => `${addr.slice(0, 6)}...${addr.slice(-4)}`;
 
-    try {
-      const endpoint = next ? '/api/agent/start' : '/api/agent/stop';
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          preset: localStorage.getItem('pragma-risk') || 'Balanced',
-          budget: Number(localStorage.getItem('pragma-budget')) || 2500,
-        }),
-      });
-      if (!res.ok) console.warn(`Agent ${next ? 'start' : 'stop'} failed`);
-    } catch (err) {
-      console.warn('Agent control request failed:', err);
-    }
-  };
+  const displayAddress = mounted
+    ? isConnected && walletAddress
+      ? walletAddress
+      : typeof window !== 'undefined'
+        ? localStorage.getItem('pragma-wallet')
+        : null
+    : null;
 
   return (
     <div className="app-frame console">
@@ -173,14 +127,19 @@ export default function DashboardPage() {
         <div className="nav-label" style={{ marginTop: 30 }}>
           Agent
         </div>
-        <div className="nav-stack">
+        <nav className="nav-stack">
           <Link
             href="#positions"
             className="nav-item"
             data-testid="link-nav-positions"
           >
             <Activity size={15} /> Positions{' '}
-            <span style={{ marginLeft: 'auto', fontSize: 10 }}>0</span>
+            <span
+              style={{ marginLeft: 'auto', fontSize: 10 }}
+              suppressHydrationWarning
+            >
+              {mounted ? openPositions.length : 0}
+            </span>
           </Link>
           <Link
             href="#activity"
@@ -189,13 +148,39 @@ export default function DashboardPage() {
           >
             <Activity size={15} /> Activity log
           </Link>
-        </div>
+          <a
+            href={displayAddress ? `https://t.me/PragmaAgent_Bot?start=link_${displayAddress}` : 'https://t.me/PragmaAgent_Bot'}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="nav-item text-[#26A5E4] hover:text-[#26A5E4]"
+            title={displayAddress ? `Link Telegram to ${displayAddress.slice(0, 6)}...` : 'Open Telegram Bot (@PragmaAgent_Bot)'}
+          >
+            <Send size={15} /> Telegram bot
+            <span
+              style={{
+                marginLeft: 'auto',
+                fontSize: 9,
+                padding: '2px 6px',
+                borderRadius: 999,
+                background: 'rgba(38, 165, 228, 0.15)',
+                color: '#26A5E4',
+                fontWeight: 600,
+              }}
+            >
+              LINKED
+            </span>
+          </a>
+        </nav>
         <div className="sidebar-foot">
           <div className="wallet-mini">
             <div className="wallet-avatar">0x</div>
             <div>
-              <b>Not connected</b>
-              <small>Connect in setup</small>
+              <b suppressHydrationWarning>
+                {displayAddress ? shorten(displayAddress) : 'Not connected'}
+              </b>
+              <small suppressHydrationWarning>
+                {displayAddress ? 'Connected' : 'Connect in setup'}
+              </small>
             </div>
           </div>
           <Link
@@ -238,131 +223,54 @@ export default function DashboardPage() {
         <header className="console-header">
           <div className="console-title">
             Command center
-            <small>No active session · dashboard ready</small>
+            <small>
+              {isWsConnected ? 'Market stream live (WebSocket)' : 'Market feed active (REST fallback)'}
+            </small>
           </div>
           <div className="console-actions">
             <div className="live-pill">
               <i className="pulse" />
-              {active ? 'AGENT ACTIVE' : 'AGENT PAUSED'}
+              {isActive ? 'AGENT ACTIVE' : 'AGENT PAUSED'}
             </div>
             <ThemeButton theme={theme} toggle={toggle} />
-            <motion.button
-              className={`button button-sm ${active ? 'button-quiet' : 'button-primary'}`}
-              onClick={toggleAgent}
-              data-testid="button-toggle-agent"
-              whileTap={{ scale: 0.96 }}
-            >
-              {active ? (
-                <>
-                  <Pause size={13} /> Pause
-                </>
-              ) : (
-                <>
-                  <Play size={13} /> Resume
-                </>
-              )}
-            </motion.button>
           </div>
         </header>
 
-        <main className="dashboard">
-          {/* KPI metrics row */}
-          <div className="metric-row" ref={gridRef}>
-            <Metric
-              icon={<Wallet size={15} />}
-              label="Total P&L"
-              value="+$0.00"
-              detail="No closed trades yet"
-            />
-            <Metric
-              icon={<Activity size={15} />}
-              label="Open Pos."
-              value="0"
-              detail="No open positions"
-            />
-            <Metric
-              icon={<SlidersHorizontal size={15} />}
-              label="Win Rate"
-              value="0%"
-              detail="No completed trades"
-            />
-          </div>
+        <motion.main
+          className="dashboard"
+          ref={gridRef}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.2, ease: 'easeOut' }}
+        >
+          {/* Task 4.6 — Live Agent Controls Panel */}
+          <AgentControls />
+
+          {/* Task 4.2 — Live P&L Stat Tiles */}
+          <PnLStats />
 
           <div className="dashboard-grid">
-            {/* P&L chart — placeholder */}
+            {/* P&L chart */}
             <section className="dash-card chart-card">
               <div className="card-heading">
                 <div>
                   <h2>P&L Chart</h2>
-                  <p>No trades yet — P&L will appear once the agent acts.</p>
+                  <p>Performance trajectory · updates with closed cycles</p>
                 </div>
               </div>
               <PlaceholderChart />
             </section>
 
-            {/* Open positions — empty state */}
-            <section
-              className="dash-card table-card"
-              id="positions"
-            >
-              <div className="card-heading">
-                <div>
-                  <h2>Open Positions</h2>
-                  <p>Mark-to-market · nothing entered yet</p>
-                </div>
-              </div>
-              <EmptyPanel
-                icon={<Activity size={16} />}
-                title="No open positions"
-                copy="PRAGMA hasn't entered any positions yet. Set a posture in setup and activate to begin."
-              />
-            </section>
+            {/* Task 4.3 — Live Open Positions Panel */}
+            <PositionsPanel />
 
-            {/* Agent activity log — empty state */}
-            <section className="dash-card log-card" id="activity">
-              <div className="card-heading">
-                <div>
-                  <h2>Agent Activity Log</h2>
-                  <p>Why PRAGMA acts</p>
-                </div>
-              </div>
-              <EmptyPanel
-                icon={<Activity size={16} />}
-                title="No activity yet"
-                copy="Every scan, decision, and execution will be logged here."
-              />
-            </section>
+            {/* Task 4.5 — Live Agent Activity Log */}
+            <AgentActivity />
 
-            {/* Trade history — empty state */}
-            <section className="dash-card trade-card">
-              <div className="card-heading">
-                <div>
-                  <h2>Trade History</h2>
-                  <p>Closed trades · will populate after the first round trip</p>
-                </div>
-              </div>
-              <div className="table-wrap">
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th>Market</th>
-                      <th>Side</th>
-                      <th>Size</th>
-                      <th>Entry</th>
-                      <th>Exit</th>
-                      <th>P&L</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr className="empty-row">
-                      <td colSpan={6}>No trades yet</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </section>
+            {/* Task 4.4 — Live Trade History Table */}
+            <TradeHistory />
           </div>
-        </main>
+        </motion.main>
       </section>
     </div>
   );
