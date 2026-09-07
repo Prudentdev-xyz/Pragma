@@ -44,7 +44,11 @@ export function BalanceDisplay() {
   });
 
   if (!isConnected || !address) {
-    return null;
+    return (
+      <div className="text-sm text-[var(--text-muted)]" style={{ fontVariantNumeric: 'tabular-nums' }}>
+        —
+      </div>
+    );
   }
 
   if (isLoading) {

@@ -1,15 +1,16 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useAccount, useConnect, useDisconnect, useSwitchChain } from 'wagmi';
+import { useEffect, useState } from 'react';
+import { useAccount, useDisconnect, useSwitchChain } from 'wagmi';
 import { Button } from '@/components/ui/button';
 import { somniaTestnet } from '@/lib/wagmi';
+import { WalletModal } from './WalletModal';
 
 export function ConnectButton() {
   const { address, isConnected, chain } = useAccount();
-  const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
   const { switchChain } = useSwitchChain();
+  const [showModal, setShowModal] = useState(false);
 
   // Switch to Somnia Shannon Testnet if connected to wrong chain
   useEffect(() => {
@@ -17,13 +18,6 @@ export function ConnectButton() {
       switchChain({ chainId: somniaTestnet.id });
     }
   }, [isConnected, chain, switchChain]);
-
-  function handleConnect() {
-    const injectedConnector = connectors.find((c) => c.id === 'injected') || connectors[0];
-    if (injectedConnector) {
-      connect({ connector: injectedConnector });
-    }
-  }
 
   if (isConnected && address) {
     return (
@@ -39,8 +33,11 @@ export function ConnectButton() {
   }
 
   return (
-    <Button variant="primary" size="md" onClick={handleConnect}>
-      Connect Wallet
-    </Button>
+    <>
+      <Button variant="primary" size="md" onClick={() => setShowModal(true)}>
+        Connect Wallet
+      </Button>
+      <WalletModal open={showModal} onClose={() => setShowModal(false)} />
+    </>
   );
 }

@@ -5,60 +5,23 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { gsap } from 'gsap';
+import { useAccount } from 'wagmi';
 import {
   ArrowRight,
   Check,
   ChevronRight,
-  CircleAlert,
   ShieldCheck,
-  Wallet,
 } from 'lucide-react';
 import { Logo, ThemeButton } from '@/components/pragma-ui';
 import { useTheme } from '@/hooks/use-theme';
+import { WalletModal } from '@/components/wallet/WalletModal';
+import { BalanceDisplay } from '@/components/wallet/BalanceDisplay';
 
 /* ─── Types ─────────────────────────────────────────────────── */
 type RiskProfile = 'Conservative' | 'Balanced' | 'Aggressive';
-type WalletProvider = {
-  request: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
-  on?: (event: string, listener: (...args: unknown[]) => void) => void;
-  removeListener?: (
-    event: string,
-    listener: (...args: unknown[]) => void,
-  ) => void;
-};
-
-/* ─── Chain config ──────────────────────────────────────────── */
-const SOMNIA_CHAIN_ID = '0xc488';
-const SOMNIA_CHAIN = {
-  chainId: SOMNIA_CHAIN_ID,
-  chainName: 'Somnia Shannon Testnet',
-  nativeCurrency: { name: 'Somnia Testnet Token', symbol: 'STT', decimals: 18 },
-  rpcUrls: ['https://dream-rpc.somnia.network'],
-};
-
-function getWalletProvider(): WalletProvider | undefined {
-  return (window as Window & { ethereum?: WalletProvider }).ethereum;
-}
 
 function shortenAddress(address: string) {
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
-}
-
-async function ensureSomnia(provider: WalletProvider) {
-  const currentChainId = await provider.request({ method: 'eth_chainId' });
-  if (currentChainId === SOMNIA_CHAIN_ID) return;
-  try {
-    await provider.request({
-      method: 'wallet_switchEthereumChain',
-      params: [{ chainId: SOMNIA_CHAIN_ID }],
-    });
-  } catch (error) {
-    if ((error as { code?: number }).code !== 4902) throw error;
-    await provider.request({
-      method: 'wallet_addEthereumChain',
-      params: [SOMNIA_CHAIN],
-    });
-  }
 }
 
 /* ─── Framer Motion variants ─────────────────────────────────── */
@@ -115,35 +78,16 @@ export default function SetupPage() {
 
   const [risk, setRisk] = useState<RiskProfile>('Balanced');
   const [budget, setBudget] = useState('2500');
-  const [walletAddress, setWalletAddress] = useState<string | null>(null);
-  const [walletError, setWalletError] = useState('');
-  const [isConnecting, setIsConnecting] = useState(false);
+  const [walletModalOpen, setWalletModalOpen] = useState(false);
 
-  // Read persisted wallet on mount (client-only)
+  // Wallet state from wagmi
+  const { address: walletAddress, isConnected } = useAccount();
+
+  // Persist wallet in localStorage for page reloads
   useEffect(() => {
-    setWalletAddress(localStorage.getItem('pragma-wallet'));
-  }, []);
-
-  // Sync MetaMask account changes
-  useEffect(() => {
-    const provider = getWalletProvider();
-    if (!provider) return;
-
-    const syncAccount = (accounts: unknown) => {
-      const next =
-        Array.isArray(accounts) && typeof accounts[0] === 'string'
-          ? accounts[0]
-          : null;
-      setWalletAddress(next);
-      if (next) localStorage.setItem('pragma-wallet', next);
-      else localStorage.removeItem('pragma-wallet');
-    };
-
-    provider.request({ method: 'eth_accounts' }).then(syncAccount).catch(() => undefined);
-    const handleChange = (...args: unknown[]) => syncAccount(args[0]);
-    provider.on?.('accountsChanged', handleChange);
-    return () => provider.removeListener?.('accountsChanged', handleChange);
-  }, []);
+    if (walletAddress) localStorage.setItem('pragma-wallet', walletAddress);
+    else localStorage.removeItem('pragma-wallet');
+  }, [walletAddress]);
 
   // GSAP stagger entrance
   useEffect(() => {
@@ -160,40 +104,8 @@ export default function SetupPage() {
     return () => ctx.revert();
   }, []);
 
-  const connectWallet = async () => {
-    setWalletError('');
-    const provider = getWalletProvider();
-    if (!provider) {
-      setWalletError('Install MetaMask or another browser wallet to continue.');
-      return;
-    }
-    setIsConnecting(true);
-    try {
-      const accounts = await provider.request({ method: 'eth_requestAccounts' });
-      await ensureSomnia(provider);
-      const next =
-        Array.isArray(accounts) && typeof accounts[0] === 'string'
-          ? accounts[0]
-          : null;
-      if (!next) throw new Error('No wallet account was returned.');
-      setWalletAddress(next);
-      localStorage.setItem('pragma-wallet', next);
-    } catch (error) {
-      const msg =
-        error instanceof Error ? error.message : 'Wallet connection was cancelled.';
-      setWalletError(
-        msg.includes('User rejected')
-          ? 'Connection cancelled in your wallet.'
-          : msg,
-      );
-    } finally {
-      setIsConnecting(false);
-    }
-  };
-
   const activate = () => {
     if (!walletAddress) {
-      setWalletError('Connect a wallet before activating PRAGMA.');
       return;
     }
     localStorage.setItem('pragma-active', 'true');
@@ -253,7 +165,7 @@ export default function SetupPage() {
             </div>
 
             <AnimatePresence mode="wait">
-              {walletAddress ? (
+              {isConnected && walletAddress ? (
                 <motion.div
                   key="connected"
                   className="wallet-connected"
@@ -285,32 +197,16 @@ export default function SetupPage() {
                   <div>
                     <div className="wallet-name">No wallet connected</div>
                     <p>
-                      Connect MetaMask, Zerion, or another EVM wallet on Somnia.
+                      Connect MetaMask, Zerion, Phantom, Rabby, or another EVM wallet.
                     </p>
                   </div>
                   <button
                     className="button button-primary button-sm"
-                    onClick={connectWallet}
-                    disabled={isConnecting}
+                    onClick={() => setWalletModalOpen(true)}
                     data-testid="button-connect-wallet"
                   >
-                    <Wallet size={14} />
-                    {isConnecting ? 'Connecting...' : 'Connect wallet'}
+                    Connect wallet
                   </button>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            <AnimatePresence>
-              {walletError && (
-                <motion.div
-                  className="wallet-error"
-                  role="alert"
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                >
-                  <CircleAlert size={14} /> {walletError}
                 </motion.div>
               )}
             </AnimatePresence>
@@ -318,9 +214,8 @@ export default function SetupPage() {
             <div className="balance-line">
               <div>
                 <small>Available balance</small>
-                <strong className="data-value">3,842.61 USDC</strong>
+                <BalanceDisplay />
               </div>
-              <span className="balance-usd">≈ $3,842.61</span>
             </div>
 
             {/* Step 2 — Risk */}
@@ -436,6 +331,9 @@ export default function SetupPage() {
           </aside>
         </div>
       </main>
+
+      {/* Wallet selector modal */}
+      <WalletModal open={walletModalOpen} onClose={() => setWalletModalOpen(false)} />
     </div>
   );
 }
