@@ -27,7 +27,7 @@ export async function callGroq(ctx: TradeDecisionPrompt): Promise<string> {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'llama-3.3-70b-versatile',
+      model: 'openai/gpt-oss-120b',
       temperature: 0.2,
       messages: [
         { role: 'system', content: systemPrompt() },
